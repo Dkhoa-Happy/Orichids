@@ -16,7 +16,7 @@ export default function News() {
             <div className="md:flex">
               <div className="md:flex-shrink-0">
                 <img
-                  className="h-100 w-full object-cover md:w-48"
+                  className="h-full w-full object-cover md:w-48"
                   src="https://th.bing.com/th/id/R.c356131edbf7a27f77c8d2f219ac3907?rik=eriF8p16gl%2b%2bzw&pid=ImgRaw&r=0&sres=1&sresct=1"
                   alt="Rare Orchid Discovery"
                 />
@@ -126,7 +126,7 @@ export default function News() {
             <div className="md:flex">
               <div className="md:flex-shrink-0">
                 <img
-                  className="h-100 w-full object-cover md:w-48"
+                  className="h-full w-full object-cover md:w-48"
                   src="https://d454f65f6x7sd.cloudfront.net/wp-content/uploads/2019/10/01-pink-phalaenopsis-feature.jpg" // Updated the image URL
                   alt="Phalaenopsis Orchid"
                 />

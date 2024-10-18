@@ -35,23 +35,25 @@ export default function Header() {
 
   return (
     <header
-      className="bg-background border-b sticky top-0 z-50"
+      className="bg-background border-b sticky top-0 z-50 p-5"
       style={{ backgroundColor: theme.backgroundColor, color: theme.color }}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-around h-16 gap-x-80">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo Section */}
           <div className="flex items-center w-40">
             <Link to="/" className="flex items-center space-x-2">
               <img
-                src="src\assets\images\image-removebg-preview.png"
+                src="src/assets/images/image-removebg-preview.png"
                 alt="Orchids Logo"
                 className="h-16 w-24"
               />
             </Link>
           </div>
 
-          <NavigationMenu className="hidden md:flex ">
-            <NavigationMenuList className="gap-40 text-lg">
+          {/* Navigation and User Menu */}
+          <NavigationMenu className="hidden lg:flex">
+            <NavigationMenuList className="gap-8 text-lg">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link to="/" className="text-lg font-medium">
@@ -164,7 +166,7 @@ export default function Header() {
                       alt={user.displayName || "User avatar"}
                     />
                     <AvatarFallback>
-                      {user.displayName?.[0] || <User className="h-14 w-14" />}
+                      {user.displayName?.[0] || <User className="h-4 w-4" />}
                     </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
@@ -178,7 +180,11 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild size="sm">
+              <Button
+                asChild
+                size="sm"
+                className="bg-pink-400 hover:bg-pink-700"
+              >
                 <Link to="/login">Sign in</Link>
               </Button>
             )}
@@ -186,10 +192,10 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="lg:hidden"
               aria-label="Open menu"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-6 w-6" />
             </Button>
           </div>
         </div>
