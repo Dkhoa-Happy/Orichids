@@ -215,7 +215,7 @@ export default function Dashboard() {
                       </DialogHeader>
                       <div className="space-y-4">
                         <img
-                          src={selectedOrchid?.imageUrl || ""}
+                          src={selectedOrchid?.image || ""}
                           alt={selectedOrchid?.name || ""}
                           width={200}
                           height={200}

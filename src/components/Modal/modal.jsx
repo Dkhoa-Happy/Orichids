@@ -1,55 +1,88 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
+import { Button } from "../ui/button";
 import {
   Dialog,
-  DialogTrigger,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+  DialogTrigger,
+} from "../ui/dialog";
 
-function Modal1({ orichid, trigger }) {
+function Modal1({ orichidId, trigger }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [rating, setRating] = useState(orichid?.rating || 0);
+  const [orchid, setOrchid] = useState(null); // Orchid data fetched from API
+  const [rating, setRating] = useState(0); // Rating value
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
 
-  const showModal = () => {
+  // Log orichidId to see if it's correctly passed
+  console.log("orichidId:", orichidId);
+
+  const baseURL = "https://66c6a2a88b2c10445bc73c2d.mockapi.io/Orichids";
+
+  // Fetch orchid data when the modal is opened
+  const fetchOrchidData = () => {
+    if (!orichidId) {
+      console.error("No orichidId provided");
+      return;
+    }
+
+    setLoading(true);
+    fetch(`${baseURL}/${orichidId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch orchid data");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setOrchid(data);
+        setRating(data.rating || 0);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error.message);
+        setLoading(false);
+      });
+  };
+
+  const handleOpen = () => {
     setIsModalOpen(true);
+    fetchOrchidData();
   };
 
   const handleClose = () => {
     setIsModalOpen(false);
   };
 
-  // Hàm để cập nhật đánh giá sao
-  const handleRatingClick = (index) => {
-    setRating(index);
-  };
-
   return (
     <div>
-      {/* Trigger element */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogTrigger asChild>
-          <span onClick={showModal}>{trigger}</span>
+          <div onClick={handleOpen}>{trigger}</div>
         </DialogTrigger>
 
         <DialogContent className="max-w-lg p-6 rounded-lg shadow-lg bg-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">
-              {orichid ? orichid.name : "Detail"}
+              {orchid ? orchid.name : "Loading..."}
             </DialogTitle>
           </DialogHeader>
 
-          {orichid ? (
+          {loading ? (
+            <p className="mt-4 text-lg text-gray-500">Loading...</p>
+          ) : error ? (
+            <p className="mt-4 text-lg text-red-500">Error: {error}</p>
+          ) : orchid ? (
             <div className="space-y-3 mt-4">
               <p className="text-lg font-semibold">Your Rating:</p>
               <div className="flex space-x-1">
                 {Array.from({ length: 5 }, (_, index) => (
                   <span
                     key={index}
-                    onClick={() => handleRatingClick(index + 1)}
+                    onClick={() => setRating(index + 1)}
                     className={`cursor-pointer text-2xl ${
                       index < rating ? "text-yellow-400" : "text-gray-300"
                     }`}
@@ -59,11 +92,11 @@ function Modal1({ orichid, trigger }) {
                 ))}
               </div>
               <p className="text-lg mt-4">
-                Special: {orichid.isSpecial ? "Yes" : "No"}
+                Special: {orchid.isSpecial ? "Yes" : "No"}
               </p>
-              <p className="text-lg">Color: {orichid.color}</p>
-              <p className="text-lg">Origin: {orichid.origin}</p>
-              <p className="text-lg">Category: {orichid.category}</p>
+              <p className="text-lg">Color: {orchid.color}</p>
+              <p className="text-lg">Origin: {orchid.origin}</p>
+              <p className="text-lg">Category: {orchid.category}</p>
             </div>
           ) : (
             <p className="mt-4 text-lg text-gray-500">No data available</p>

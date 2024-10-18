@@ -7,32 +7,47 @@ import useSearch from "@/CustomHook/useSearch";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
-export default function OrichidsPresentation({ orichids }) {
+export default function OrichidsPresentation() {
   const { theme } = useContext(ThemeContext);
+  const baseURL = "https://66c6a2a88b2c10445bc73c2d.mockapi.io/Orichids";
+  const [apiData, setApiData] = useState([]);
 
-  // Define a search function for orchids
+  // Fetch dữ liệu từ API
+  const fetchAPI = () => {
+    fetch(baseURL)
+      .then((response) => response.json())
+      .then((data) => setApiData(data))
+      .catch((error) => console.error(error));
+  };
+
+  useEffect(() => {
+    fetchAPI();
+  }, []);
+
+  // Định nghĩa hàm tìm kiếm cho orchids
   const searchFunction = (searchQuery) => {
     return new Promise((resolve) => {
-      const filteredOrichids = orichids.filter((orichid) =>
+      const filteredOrichids = apiData.filter((orichid) =>
         orichid.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
       resolve(filteredOrichids);
     });
   };
 
-  // Use the useSearch hook
+  // Sử dụng hook useSearch
   const { query, setQuery, results, handleSearch } = useSearch(searchFunction);
 
-  // Call handleSearch when query changes
+  // Gọi handleSearch khi query hoặc apiData thay đổi
   useEffect(() => {
     handleSearch(query);
-  }, [query]);
+  }, [query, apiData]);
 
   return (
     <div className="container mx-auto p-8 max-w-screen-lg">
+      {/* Search Input */}
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="flex w-full max-w-sm items-center space-x-2"
+        className="flex w-full max-w-sm items-center space-x-2 mb-6"
       >
         <div className="relative w-full">
           <Input
@@ -40,15 +55,15 @@ export default function OrichidsPresentation({ orichids }) {
             placeholder="Search for orchids..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="pl-10" // Add padding to the left for the icon
+            className="pl-10"
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
       </form>
 
-      {/* If no results found, show "no orchids found" */}
+      {/* Nếu không tìm thấy kết quả, hiển thị thông báo */}
       {results.length === 0 ? (
-        <p className="text-center text-3xl text-pink-500">No orichids found</p>
+        <p className="text-center text-3xl text-pink-500">No orchids found</p>
       ) : (
         <div className="flex flex-wrap justify-around gap-6">
           {results.map((orichid, index) => (
@@ -74,12 +89,15 @@ export default function OrichidsPresentation({ orichids }) {
                     </span>
                   )}
                   <Modal1
-                    orichid={orichid}
+                    orichidId={orichid.Id}
                     trigger={
                       <img
-                        src={orichid.image}
+                        src={orichid.image || orichid.imageUrl}
                         alt={orichid.name}
                         className="w-[250px] h-[200px] rounded-lg object-cover"
+                        onError={(e) => {
+                          e.target.src = "https://via.placeholder.com/250x200";
+                        }}
                       />
                     }
                   />
