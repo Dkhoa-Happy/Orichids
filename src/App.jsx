@@ -14,10 +14,12 @@ import Protected from "./Protected Route/protectedRoute";
 import Add from "./pages/AddPage/add";
 import EditPage from "./pages/EditPage/editPage";
 import Login from "./components/Login/Login";
+import ScrollToTop from "./components/scrollToTop";
 
 function App() {
   return (
     <ThemeProvider>
+      <ScrollToTop />
       <Header />
       <Routes>
         <Route path="/" element={<Main />}></Route>
