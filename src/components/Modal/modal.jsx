@@ -72,7 +72,7 @@ function Modal1({ orichid, trigger }) {
           <DialogClose asChild>
             <Button
               onClick={handleClose}
-              className="mt-6 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+              className="mt-6 bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded"
             >
               Close
             </Button>

@@ -1,14 +1,25 @@
 import { useContext, useState } from "react";
-import { Button } from "../ui/button";
-import { Orichids } from "@/Shared/listOfOrchids";
 import { useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Orichids } from "@/Shared/listOfOrchids";
 import { ThemeContext } from "@/ThemeContext";
 
 export default function Detail() {
   const { id } = useParams();
-  const [showVideo, setShowVideo] = useState(false); // State for video visibility
+  const [open, setOpen] = useState(false);
   const { theme, toggle, dark } = useContext(ThemeContext);
   const orchid = Orichids.find((obj) => obj.Id === id);
+
+  if (!orchid) {
+    return <div>Orchid not found</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 bg-gradient-to-b from-purple-100 to-white">
@@ -31,25 +42,29 @@ export default function Detail() {
           <p className="text-gray-700 mb-6">Color: {orchid.color}</p>
           <p className="text-gray-700 mb-6">{orchid.details}</p>
 
-          {/*  Button to toggle iframe visibility */}
-          <Button onClick={() => setShowVideo(!showVideo)} className="mb-4">
-            {showVideo ? "Hide Video" : "View Video"}
-          </Button>
-
-          {/* Conditionally render the iframe */}
-          {showVideo && (
-            <div
-              className="relative"
-              style={{ width: "100%", paddingTop: "56.25%" }}
-            >
-              <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src={orchid.iframe}
-                title="Orchid Video"
-                allowFullScreen
-              ></iframe>
-            </div>
-          )}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>View Video</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[800px] w-[90vw] max-h-[90vh] flex flex-col">
+              <DialogHeader>
+                <DialogTitle className="text-lg">
+                  {orchid.name} Video
+                </DialogTitle>
+              </DialogHeader>
+              <div
+                className="flex-grow relative overflow-hidden"
+                style={{ aspectRatio: "16 / 9" }}
+              >
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src={orchid.iframe}
+                  title={`${orchid.name} Video`}
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>
