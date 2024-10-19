@@ -2,12 +2,26 @@ import Modal1 from "@/components/Modal/modal";
 import { Button } from "@/components/ui/button";
 import { Orichids } from "@/Shared/listOfOrchids";
 import { ThemeContext } from "@/ThemeContext";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Origin = () => {
   const orichidList = Orichids.filter((obj) => obj.isSpecial === true);
   const { theme } = useContext(ThemeContext);
+  const baseURL = "https://66c6a2a88b2c10445bc73c2d.mockapi.io/Orichids";
+  const [apiData, setApiData] = useState([]);
+
+  // Fetch data từ API khi component được render
+  const fetchAPI = () => {
+    fetch(baseURL)
+      .then((response) => response.json())
+      .then((data) => setApiData(data))
+      .catch((error) => console.error(error));
+  };
+
+  useEffect(() => {
+    fetchAPI();
+  }, []);
 
   return (
     <div className="container mx-auto flex flex-wrap justify-around p-8 gap-6 max-w-screen-lg bg-cover bg-center bg-no-repeat min-h-screen">
