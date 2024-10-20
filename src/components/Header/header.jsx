@@ -44,7 +44,7 @@ export default function Header() {
           <div className="flex items-center w-40">
             <Link to="/" className="flex items-center space-x-2">
               <img
-                src="src/assets/images/image-removebg-preview.png"
+                src="public\images\image-removebg-preview.png"
                 alt="Orchids Logo"
                 className="h-16 w-24"
               />

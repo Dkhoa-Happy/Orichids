@@ -15,11 +15,13 @@ import Add from "./pages/AddPage/add";
 import EditPage from "./pages/EditPage/editPage";
 import Login from "./components/Login/Login";
 import ScrollToTop from "./components/scrollToTop";
+import { Toaster } from "sonner";
 
 function App() {
   return (
     <ThemeProvider>
       <ScrollToTop />
+      <Toaster position="top-right" richColors />
       <Header />
       <Routes>
         <Route path="/" element={<Main />}></Route>

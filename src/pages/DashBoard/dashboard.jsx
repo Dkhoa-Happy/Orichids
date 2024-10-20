@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const baseURL = "https://66c6a2a88b2c10445bc73c2d.mockapi.io/Orichids";
@@ -28,6 +30,9 @@ export default function Dashboard() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  // Thêm state để quản lý dialog xác nhận
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [orchidToDelete, setOrchidToDelete] = useState(null);
 
   // Fetch data từ API khi component được render
   const fetchAPI = () => {
@@ -58,7 +63,10 @@ export default function Dashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newOrchid),
     })
-      .then(() => fetchAPI()) // Fetch lại dữ liệu sau khi thêm mới
+      .then(() => {
+        fetchAPI(); // Fetch lại dữ liệu sau khi thêm mới
+        toast.success(`Added ${newOrchid.name} successfully!`);
+      })
       .catch((err) => console.error(err));
 
     setIsAddDialogOpen(false);
@@ -84,20 +92,35 @@ export default function Dashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedOrchid),
     })
-      .then(() => fetchAPI()) // Fetch lại dữ liệu sau khi chỉnh sửa
+      .then(() => {
+        fetchAPI(); // Fetch lại dữ liệu sau khi chỉnh sửa
+        toast.success(`Updated ${updatedOrchid.name} successfully!`);
+      })
       .catch((err) => console.error(err));
 
     setIsEditDialogOpen(false);
   };
 
-  // Handle xóa dữ liệu
-  const handleDelete = (id) => {
-    // Gửi DELETE request để xóa dữ liệu
-    fetch(`${baseURL}/${id}`, {
+  // Hàm xử lý xóa sau khi xác nhận
+  const confirmDelete = () => {
+    if (!orchidToDelete) return;
+
+    fetch(`${baseURL}/${orchidToDelete.Id}`, {
       method: "DELETE",
     })
-      .then(() => fetchAPI()) // Fetch lại dữ liệu sau khi xóa
+      .then(() => {
+        fetchAPI(); // Fetch lại dữ liệu sau khi xóa
+        setOrchidToDelete(null); // Xóa giá trị của orchid sau khi đã xóa
+        setIsConfirmDialogOpen(false); // Đóng dialog
+        toast.success(`Deleted ${orchidToDelete?.name} successfully!`); // Sử dụng orchidToDelete để lấy tên
+      })
       .catch((err) => console.error(err));
+  };
+
+  // Hàm mở dialog xóa
+  const handleDelete = (orchid) => {
+    setOrchidToDelete(orchid); // Lưu orchid để xóa
+    setIsConfirmDialogOpen(true); // Mở dialog xác nhận
   };
 
   const OrchidForm = ({ orchid, onSubmit }) => (
@@ -178,10 +201,10 @@ export default function Dashboard() {
         </TableHeader>
         <TableBody>
           {apiData.map((orchid) => (
-            <TableRow key={orchid.id} className="bg-white border-t">
+            <TableRow key={orchid.Id} className="bg-white border-t">
               <TableCell>
                 <img
-                  src={orchid.image || orchid.imageUrl} // Thay đổi src thành image hoặc imageUrl
+                  src={orchid.imageUrl || orchid.image} // Thay đổi src thành imageUrl
                   alt={orchid.name}
                   width={100}
                   height={100}
@@ -215,7 +238,7 @@ export default function Dashboard() {
                       </DialogHeader>
                       <div className="space-y-4">
                         <img
-                          src={selectedOrchid?.image || ""}
+                          src={selectedOrchid?.imageUrl || ""}
                           alt={selectedOrchid?.name || ""}
                           width={200}
                           height={200}
@@ -259,10 +282,38 @@ export default function Dashboard() {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => handleDelete(orchid.id)}
+                    onClick={() => handleDelete(orchid)}
                   >
                     <Trash2 className="h-4 w-4 text-red-700" />
                   </Button>
+
+                  <Dialog
+                    open={isConfirmDialogOpen}
+                    onOpenChange={setIsConfirmDialogOpen}
+                  >
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <p>
+                          Are you sure you want to delete {orchidToDelete?.name}
+                          ?
+                        </p>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="secondary"
+                          onClick={() => setIsConfirmDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete}>
+                          Delete
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </TableCell>
             </TableRow>
