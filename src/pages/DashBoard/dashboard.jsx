@@ -20,6 +20,8 @@ import {
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import Add from "../AddPage/add";
+import { PiFlowerTulipDuotone } from "react-icons/pi";
+import { RxShadowNone } from "react-icons/rx";
 import EditPage from "../EditPage/editPage";
 import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton
 
@@ -36,12 +38,14 @@ export default function Dashboard() {
 
   // Fetch data từ API khi component được render
   const fetchAPI = () => {
-    setIsLoading(true); // Bắt đầu quá trình load
+    setIsLoading(true); // Bắt đầu quá trình tải
     fetch(baseURL)
       .then((resp) => resp.json())
       .then((data) => {
-        setApiData(data);
-        setIsLoading(false); // Tắt loading khi load xong
+        // Sắp xếp dữ liệu theo Id giảm dần
+        const sortedData = data.sort((a, b) => b.Id - a.Id);
+        setApiData(sortedData);
+        setIsLoading(false); // Tắt loading khi hoàn thành
       })
       .catch((err) => {
         console.error(err);
@@ -108,23 +112,30 @@ export default function Dashboard() {
         </Dialog>
       </div>
 
-      <Table className="bg-white border border-gray-300 rounded-lg shadow">
-        <TableHeader className="bg-gray-100">
+      <Table className="w-full bg-white border border-gray-200 rounded-lg shadow-md">
+        <TableHeader className="bg-gray-50">
           <TableRow>
-            <TableHead className="text-gray-700">Image</TableHead>
-            <TableHead className="text-gray-700">Name</TableHead>
-            <TableHead className="text-gray-700">Origin</TableHead>
-            <TableHead className="text-gray-700">Color</TableHead>
-            <TableHead className="text-gray-700">Iframe</TableHead>{" "}
-            {/* Thêm cột iframe */}
-            <TableHead className="text-gray-700">Actions</TableHead>
+            <TableHead className="text-gray-700 font-semibold">Image</TableHead>
+            <TableHead className="text-gray-700 font-semibold">Name</TableHead>
+            <TableHead className="text-gray-700 font-semibold">
+              Origin
+            </TableHead>
+            <TableHead className="text-gray-700 font-semibold">Color</TableHead>
+            <TableHead className="text-gray-700 font-semibold">
+              Iframe
+            </TableHead>
+            <TableHead className="text-gray-700 font-semibold">
+              Special
+            </TableHead>
+            <TableHead className="text-gray-700 font-semibold">
+              Actions
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {/* Hiển thị skeleton khi đang tải dữ liệu */}
           {isLoading
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={index} className="bg-white border-t">
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <TableRow key={index} className="border-t">
                   <TableCell>
                     <Skeleton className="w-24 h-24 rounded-md" />
                   </TableCell>
@@ -138,15 +149,21 @@ export default function Dashboard() {
                     <Skeleton className="h-6 w-24 rounded-lg" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-6 w-32 rounded-lg" />
+                    <Skeleton className="h-24 w-32 rounded-lg" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-6 w-32 rounded-lg" />
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-10 w-32 rounded-lg" />
                   </TableCell>
                 </TableRow>
               ))
             : apiData.map((orchid) => (
-                <TableRow key={orchid.Id} className="bg-white border-t">
+                <TableRow
+                  key={orchid.Id}
+                  className="border-t hover:bg-gray-50 transition-colors"
+                >
                   <TableCell>
                     <img
                       src={orchid.image}
@@ -155,28 +172,38 @@ export default function Dashboard() {
                       height={100}
                       className="rounded-md object-cover"
                       onError={(e) =>
-                        (e.target.src = "https://via.placeholder.com/100")
+                        (e.currentTarget.src =
+                          "https://via.placeholder.com/100")
                       }
                     />
                   </TableCell>
-                  <TableCell className="text-gray-800">{orchid.name}</TableCell>
-                  <TableCell className="text-gray-800">
+                  <TableCell className="text-gray-800 font-medium">
+                    {orchid.name}
+                  </TableCell>
+                  <TableCell className="text-gray-600">
                     {orchid.origin}
                   </TableCell>
-                  <TableCell className="text-gray-800">
+                  <TableCell className="text-gray-600">
                     {orchid.color}
                   </TableCell>
-                  <TableCell className="text-gray-800">
-                    {/* Hiển thị iframe */}
+                  <TableCell className="text-gray-600">
                     <iframe
                       src={orchid.iframe}
                       title={orchid.name}
-                      width="300"
-                      height="300"
-                      className="rounded-md"
+                      width="200"
+                      height="150"
+                      className="rounded-md border border-gray-200"
                       allowFullScreen
                     />
                   </TableCell>
+                  <TableCell className="text-center">
+                    {orchid.isSpecial ? (
+                      <PiFlowerTulipDuotone className="h-6 w-6 text-yellow-400 align-middle justify-center flex" />
+                    ) : (
+                      <RxShadowNone className="h-6 w-6 text-gray-400 align-middle justify-center flex" />
+                    )}
+                  </TableCell>
+
                   <TableCell>
                     <div className="flex space-x-2">
                       <Dialog
@@ -189,7 +216,7 @@ export default function Dashboard() {
                             size="icon"
                             onClick={() => setSelectedOrchid(orchid)}
                           >
-                            <Eye className="h-4 w-4 text-yellow-400" />
+                            <Eye className="h-4 w-4 text-blue-500" />
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
@@ -214,6 +241,14 @@ export default function Dashboard() {
                               <strong>Details:</strong>{" "}
                               {selectedOrchid?.details}
                             </p>
+                            <p>
+                              <strong>Special:</strong>{" "}
+                              {selectedOrchid?.isSpecial ? (
+                                <PiFlowerTulipDuotone className="h-6 w-6 text-yellow-400 align-middle justify-center" />
+                              ) : (
+                                <RxShadowNone className="h-6 w-6 text-gray-400 align-middle justify-center" />
+                              )}
+                            </p>
                           </div>
                         </DialogContent>
                       </Dialog>
@@ -228,7 +263,7 @@ export default function Dashboard() {
                             size="icon"
                             onClick={() => setSelectedOrchid(orchid)}
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-4 w-4 text-green-500" />
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
@@ -245,45 +280,36 @@ export default function Dashboard() {
                         size="icon"
                         onClick={() => handleDelete(orchid)}
                       >
-                        <Trash2 className="h-4 w-4 text-red-700" />
+                        <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
-
-                      <Dialog
-                        open={isConfirmDialogOpen}
-                        onOpenChange={setIsConfirmDialogOpen}
-                      >
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Confirm Delete</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <p>
-                              Are you sure you want to delete{" "}
-                              {orchidToDelete?.name}?
-                            </p>
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              variant="secondary"
-                              onClick={() => setIsConfirmDialogOpen(false)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              onClick={confirmDelete}
-                            >
-                              Delete
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
         </TableBody>
       </Table>
+
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p>Are you sure you want to delete {orchidToDelete?.name}?</p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => setIsConfirmDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
