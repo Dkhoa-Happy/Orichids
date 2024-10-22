@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -17,11 +16,11 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
+import Add from "../AddPage/add";
+import EditPage from "../EditPage/editPage";
 
 export default function Dashboard() {
   const baseURL = "https://66c6a2a88b2c10445bc73c2d.mockapi.io/Orichids";
@@ -46,61 +45,6 @@ export default function Dashboard() {
     fetchAPI();
   }, []);
 
-  // Handle thêm dữ liệu vào API
-  const handleAdd = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const newOrchid = {
-      name: formData.get("name"),
-      origin: formData.get("origin"),
-      color: formData.get("color"),
-      details: formData.get("details"),
-      imageUrl: formData.get("imageUrl"),
-    };
-    // Gửi POST request để thêm dữ liệu
-    fetch(baseURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newOrchid),
-    })
-      .then(() => {
-        fetchAPI(); // Fetch lại dữ liệu sau khi thêm mới
-        toast.success(`Added ${newOrchid.name} successfully!`);
-      })
-      .catch((err) => console.error(err));
-
-    setIsAddDialogOpen(false);
-  };
-
-  // Handle chỉnh sửa dữ liệu
-  const handleEdit = (event) => {
-    event.preventDefault();
-    if (!selectedOrchid) return;
-    const formData = new FormData(event.currentTarget);
-    const updatedOrchid = {
-      ...selectedOrchid,
-      name: formData.get("name"),
-      origin: formData.get("origin"),
-      color: formData.get("color"),
-      details: formData.get("details"),
-      imageUrl: formData.get("imageUrl"),
-    };
-
-    // Gửi PUT request để chỉnh sửa dữ liệu
-    fetch(`${baseURL}/${selectedOrchid.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedOrchid),
-    })
-      .then(() => {
-        fetchAPI(); // Fetch lại dữ liệu sau khi chỉnh sửa
-        toast.success(`Updated ${updatedOrchid.name} successfully!`);
-      })
-      .catch((err) => console.error(err));
-
-    setIsEditDialogOpen(false);
-  };
-
   // Hàm xử lý xóa sau khi xác nhận
   const confirmDelete = () => {
     if (!orchidToDelete) return;
@@ -123,61 +67,25 @@ export default function Dashboard() {
     setIsConfirmDialogOpen(true); // Mở dialog xác nhận
   };
 
-  const OrchidForm = ({ orchid, onSubmit }) => (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="name">Name</Label>
-        <Input id="name" name="name" defaultValue={orchid?.name} required />
-      </div>
-      <div>
-        <Label htmlFor="origin">Origin</Label>
-        <Input
-          id="origin"
-          name="origin"
-          defaultValue={orchid?.origin}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="color">Color</Label>
-        <Input id="color" name="color" defaultValue={orchid?.color} required />
-      </div>
-      <div>
-        <Label htmlFor="details">Details</Label>
-        <Input
-          id="details"
-          name="details"
-          defaultValue={orchid?.details}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="imageUrl">Image URL</Label>
-        <Input
-          id="imageUrl"
-          name="imageUrl"
-          defaultValue={orchid?.imageUrl}
-          required
-        />
-      </div>
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button type="button" variant="secondary">
-            Cancel
-          </Button>
-        </DialogClose>
-        <Button type="submit">Save</Button>
-      </DialogFooter>
-    </form>
-  );
+  const closeAddDialog = () => {
+    setIsAddDialogOpen(false);
+    const triggerButton = document.getElementById("addTriggerButton"); // Lấy phần tử nút mở dialog
+    if (triggerButton) {
+      triggerButton.focus(); // Đặt focus lại về nút trigger sau khi dialog đóng
+    }
+  };
 
+  // Hàm closeEditDialog để đóng dialog chỉnh sửa và đưa focus về nút Edit
+  const closeEditDialog = () => {
+    setIsEditDialogOpen(false);
+  };
   return (
     <div className=" mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Orchid Dashboard</h1>
       <div className="mb-4">
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button id="addTriggerButton">
               <Plus className="mr-2 h-4 w-4" /> Add Orchid
             </Button>
           </DialogTrigger>
@@ -185,7 +93,8 @@ export default function Dashboard() {
             <DialogHeader>
               <DialogTitle>Add New Orchid</DialogTitle>
             </DialogHeader>
-            <OrchidForm onSubmit={handleAdd} />
+            <Add onAddSuccess={fetchAPI} onCloseDialog={closeAddDialog} />{" "}
+            {/* Gọi lại fetchAPI sau khi thêm thành công */}
           </DialogContent>
         </Dialog>
       </div>
@@ -204,7 +113,7 @@ export default function Dashboard() {
             <TableRow key={orchid.Id} className="bg-white border-t">
               <TableCell>
                 <img
-                  src={orchid.imageUrl || orchid.image} // Thay đổi src thành imageUrl
+                  src={orchid.image} // Thay đổi src thành imageUrl
                   alt={orchid.name}
                   width={100}
                   height={100}
@@ -238,7 +147,7 @@ export default function Dashboard() {
                       </DialogHeader>
                       <div className="space-y-4">
                         <img
-                          src={selectedOrchid?.imageUrl || ""}
+                          src={selectedOrchid?.image || ""}
                           alt={selectedOrchid?.name || ""}
                           width={200}
                           height={200}
@@ -256,6 +165,8 @@ export default function Dashboard() {
                       </div>
                     </DialogContent>
                   </Dialog>
+
+                  {/* Thêm DialogTrigger cho nút Edit */}
                   <Dialog
                     open={isEditDialogOpen}
                     onOpenChange={setIsEditDialogOpen}
@@ -273,12 +184,14 @@ export default function Dashboard() {
                       <DialogHeader>
                         <DialogTitle>Edit Orchid</DialogTitle>
                       </DialogHeader>
-                      <OrchidForm
+                      <EditPage
                         orchid={selectedOrchid}
-                        onSubmit={handleEdit}
+                        onEditSuccess={fetchAPI}
+                        onCloseDialog={closeEditDialog}
                       />
                     </DialogContent>
                   </Dialog>
+
                   <Button
                     variant="outline"
                     size="icon"
