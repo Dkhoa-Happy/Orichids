@@ -232,9 +232,6 @@ export default function Dashboard() {
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Edit Orchid</DialogTitle>
-                          </DialogHeader>
                           <EditPage
                             orchid={selectedOrchid}
                             onEditSuccess={fetchAPI}
