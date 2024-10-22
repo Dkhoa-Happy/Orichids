@@ -81,11 +81,11 @@ export default function Footer() {
             <h3 className="text-2xl font-bold">Contact Us</h3>
             <p className="flex items-center text-muted-foreground">
               <Mail className="h-4 w-4 mr-2" />
-              thanhdcse182567@fpt.edu.vn
+              khoalmdse182689@fpt.edu.vn
             </p>
             <p className="flex items-center text-muted-foreground">
               <Phone className="h-4 w-4 mr-2" />
-              +123 456 7890
+              +84 97 251 3978
             </p>
           </div>
         </div>

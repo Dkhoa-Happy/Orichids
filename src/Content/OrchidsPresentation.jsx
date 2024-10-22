@@ -6,18 +6,27 @@ import { Button } from "@/components/ui/button";
 import useSearch from "@/CustomHook/useSearch";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton từ shadcn/ui
 
 export default function OrichidsPresentation() {
   const { theme } = useContext(ThemeContext);
   const baseURL = "https://66c6a2a88b2c10445bc73c2d.mockapi.io/Orichids";
   const [apiData, setApiData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // State để quản lý skeleton loading
 
   // Fetch dữ liệu từ API
   const fetchAPI = () => {
+    setIsLoading(true); // Bắt đầu quá trình load
     fetch(baseURL)
       .then((response) => response.json())
-      .then((data) => setApiData(data))
-      .catch((error) => console.error(error));
+      .then((data) => {
+        setApiData(data);
+        setIsLoading(false); // Tắt loading khi load xong
+      })
+      .catch((error) => {
+        console.error(error);
+        setIsLoading(false); // Tắt loading khi có lỗi
+      });
   };
 
   useEffect(() => {
@@ -61,8 +70,26 @@ export default function OrichidsPresentation() {
         </div>
       </form>
 
-      {/* Nếu không tìm thấy kết quả, hiển thị thông báo */}
-      {results.length === 0 ? (
+      {/* Skeleton loading */}
+      {isLoading ? (
+        <div className="flex flex-wrap justify-around gap-6">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="column flex flex-1 justify-center max-w-[calc(25%-1.5rem)] p-4"
+            >
+              {/* Sử dụng Skeleton từ shadcn/ui */}
+              <div className="flex flex-col space-y-3">
+                <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[250px]" />
+                  <Skeleton className="h-4 w-[200px]" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : results.length === 0 ? (
         <p className="text-center text-3xl text-pink-500">No orchids found</p>
       ) : (
         <div className="flex flex-wrap justify-around gap-6">
@@ -92,7 +119,7 @@ export default function OrichidsPresentation() {
                     orichidId={orichid.Id}
                     trigger={
                       <img
-                        src={orichid.image || orichid.imageUrl}
+                        src={orichid.image}
                         alt={orichid.name}
                         className="w-[250px] h-[200px] rounded-lg object-cover"
                         onError={(e) => {

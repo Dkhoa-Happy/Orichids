@@ -48,7 +48,7 @@ export default function AboutUs() {
                 <CardContent className="p-6">
                   <img
                     className="w-32 h-32 rounded-full mx-auto mb-4"
-                    src="public\images\khoa.jpg"
+                    src="images\khoa.jpg"
                     alt={member.name}
                   />
                   <h3 className="text-xl font-semibold text-gray-800 text-center">
